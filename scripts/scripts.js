@@ -16,7 +16,7 @@ const logger = require('../../logger/index.js');
   await Odds.create()
   await Relationships.create()
 
-  // await Relationships.instance.clearDB()
+  // await Relationships.clearDB()
   
   await getEventsToMerge()
 
@@ -145,13 +145,13 @@ async function getEventsToMerge() {
     }
 ]
 
-  let eventsToMerge = await Odds.instance.getModelByName('event').aggregate(pipeline)
+  let eventsToMerge = await Odds.getModelByName('event').aggregate(pipeline)
   let filteredEventsToMerge = (await Promise.all(eventsToMerge.map(mapEvents)))
   .filter(eventsByDate => eventsByDate.eventsByWebsite.flat().length != 0)
 
-  await Relationships.instance.clearCollection('merge')
+  await Relationships.clearCollection('merge')
   for await (let events of filteredEventsToMerge) {
-    await Relationships.instance.saveDocument(events, {}, 'merge')
+    await Relationships.saveDocument(events, {}, 'merge')
   }
 }
 
@@ -167,12 +167,12 @@ async function checkForRelationships(event) {
     await checkTeamRelationship(event, event.home._id)
     await checkTeamRelationship(event, event.away._id)
 
-    let results = await Relationships.instance.findDocuments('event', { websites: event._id })
+    let results = await Relationships.findDocuments('event', { websites: event._id })
     return results.length == 0
 }
 
 async function checkTeamRelationship(event, teamId) {
-  let results = await Relationships.instance.findDocuments('team', { websites: teamId })
+  let results = await Relationships.findDocuments('team', { websites: teamId })
   if (results.length != 0) {
     let websites = results[0].websites
     let query = {
@@ -185,7 +185,7 @@ async function checkTeamRelationship(event, teamId) {
       date: event.date
     }
 
-    let events = await Odds.instance.findDocuments('event', query)
+    let events = await Odds.findDocuments('event', query)
 
     if (events.length > 1) {
       logger.info(`Found ${events.length} events with team ${teamId} at ${event.date} to merge`) 
@@ -199,7 +199,7 @@ async function mergeRelationships(eventIdArray) {
   let eventDocArray = (await Promise.all(
     eventIdArray.map(async(_id) => {
       _id = new mongoose.Types.ObjectId(_id)
-      return await Odds.instance.getModelByName('event').find(_id).populate('competition', '_id country')
+      return await Odds.getModelByName('event').find(_id).populate('competition', '_id country')
     })
   )).flat()
 
@@ -245,7 +245,7 @@ async function mergeEntities(entityArray, modelName) {
 
   let docId
   for await (let entity of entityArray) {
-    docId = await Relationships.instance.saveDocument(
+    docId = await Relationships.saveDocument(
       {
         $or: [ { _id: docId }, { websites: entity } ]
       },
