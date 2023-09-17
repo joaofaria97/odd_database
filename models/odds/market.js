@@ -42,4 +42,4 @@ MarketSchema.methods.getMarket = function() {
     return this.market
 }
 
-module.exports = MarketSchema;
+module.exports = mongoose.model('Market', MarketSchema);

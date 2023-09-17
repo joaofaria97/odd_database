@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const { Schema } =  mongoose;
 
-const EventSchema = new Schema({   
+const CompetitionSchema = new Schema({   
     websites: [{
         type: Schema.Types.ObjectId,
-        ref: 'Event'
+        ref: 'Competition'
     }],
 });
 
-module.exports = EventSchema
+module.exports = mongoose.model('Competition', CompetitionSchema);

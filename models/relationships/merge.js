@@ -33,4 +33,4 @@ const MergeSchema = new Schema({
     numWebsites: Number
 });
 
-module.exports = MergeSchema
+module.exports = mongoose.model('Merge', MergeSchema);

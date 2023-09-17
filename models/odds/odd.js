@@ -24,4 +24,4 @@ const OddSchema = new Schema({
     },
 })
 
-module.exports = OddSchema;
+module.exports = mongoose.model('Odd', OddSchema);

@@ -8,4 +8,4 @@ const CountrySchema = new Schema({
     }],
 });
 
-module.exports = CountrySchema
+module.exports = mongoose.model('Country', CountrySchema);

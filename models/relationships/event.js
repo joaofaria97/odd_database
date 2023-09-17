@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const { Schema } =  mongoose;
 
-const TeamSchema = new Schema({   
+const EventSchema = new Schema({   
     websites: [{
         type: Schema.Types.ObjectId,
-        ref: 'Team'
+        ref: 'Event'
     }],
 });
 
-module.exports = TeamSchema;
+module.exports = mongoose.model('Event', EventSchema);

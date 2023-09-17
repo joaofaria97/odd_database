@@ -5,4 +5,4 @@ const SportSchema = new Schema({
     name: String,
 })
 
-module.exports = SportSchema;
+module.exports = mongoose.model('Sport', SportSchema);
