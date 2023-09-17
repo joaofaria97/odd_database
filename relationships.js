@@ -7,9 +7,8 @@ const Event = require('./schemas/relationships/event.js');
 const Merge = require('./schemas/relationships/merge.js');
 
 class Relationships extends Mongo {
-    static instance
-    databaseName = 'relationships'
-    schemaMap = {
+    static databaseName = 'relationships'
+    static schemaMap = {
         country: Country,
         competition: Competition,
         team: Team,
@@ -19,8 +18,7 @@ class Relationships extends Mongo {
 
     static async create() {
         const obj = new Relationships();
-        await obj.initialize();
-        this.instance = obj;
+        await obj.initialize()
         return obj;
     }
 }

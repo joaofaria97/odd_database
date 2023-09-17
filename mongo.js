@@ -3,7 +3,7 @@ const logger = require('../logger/index.js');
 
 class Mongo {
 
-  async connectToMongoDB(databaseName) {
+  static async connectToMongoDB(databaseName) {
     try {
       let uri = `${process.env.DB_URI}/${databaseName}`
 
@@ -21,12 +21,12 @@ class Mongo {
   }
 
 
-  async initialize() {
+  static async initialize() {
     let conn = await this.connectToMongoDB(this.databaseName)
     this.modelMap = this.setupModels(conn)
   }
 
-  setupModels(conn) {
+  static setupModels(conn) {
       let modelMap = {}
       for (let [key, value] of Object.entries(this.schemaMap)) {
           modelMap[key] = conn.model(key.charAt(0).toUpperCase() + key.slice(1), value)
@@ -34,7 +34,7 @@ class Mongo {
       return modelMap
   }  
 
-  getModelByName(modelName) {   
+  static getModelByName(modelName) {   
     // Retrieve the model based on the input string
     const model = this.modelMap[modelName.toLowerCase()];
     
@@ -45,7 +45,7 @@ class Mongo {
     return model;
 }
 
-  async clearDB() {
+  static async clearDB() {
     try {
       for (let [key, value] of Object.entries(this.modelMap)) {
         await this.clearCollection(key.toLowerCase())
@@ -56,7 +56,7 @@ class Mongo {
     }
   }
 
-  async clearCollection(collectionName) {
+  static async clearCollection(collectionName) {
     try {
       await this.getModelByName(collectionName).deleteMany({});
       logger.debug(`Deleted all documents from ${collectionName} collection`);
@@ -65,7 +65,7 @@ class Mongo {
     }
   }
 
-  async closeConnection() {
+  static async closeConnection() {
     try {
       await mongoose.disconnect();
       this.connected = false;
@@ -74,15 +74,15 @@ class Mongo {
     }
   }
   
-  async findDocuments(modelName, query) {
+  static async findDocuments(modelName, query) {
     return (await this.getModelByName(modelName).find(query))
   }
 
-  async findDocumentByName(modelName, name) {
+  static async findDocumentByName(modelName, name) {
     return (await this.getModelByName(modelName).findOne({ name }))
   }
 
-  async insertDocument(docModel) {
+  static async insertDocument(docModel) {
     try {
       const savedModel = await docModel.save()
       console.log(`${docModel} document created successfully`)
@@ -92,11 +92,11 @@ class Mongo {
     }
   }
 
-  compareIds(id1, id2) {
+  static compareIds(id1, id2) {
     return new mongoose.Types.ObjectId(id1).equals(new mongoose.Types.ObjectId(id2))
   }
 
-  async saveDocument(query, update, modelName) {
+  static async saveDocument(query, update, modelName) {
     try {
         let model = this.getModelByName(modelName);
         let doc = await model.findOne(query);
@@ -131,7 +131,7 @@ class Mongo {
     }
 }
 
-  async runAggregation(pipeline, modelName) {
+  static async runAggregation(pipeline, modelName) {
     return await this.getModelByName(modelName).aggregate(pipeline);
   }
 

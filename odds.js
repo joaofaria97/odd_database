@@ -11,9 +11,8 @@ const Odd = require('./schemas/odds/odd.js');
 const Option = require('./schemas/odds/option.js')
 
 class Odds extends Mongo {
-    static instance
-    databaseName = 'odds'
-    schemaMap = {
+    static databaseName = 'odds'
+    static schemaMap = {
         website: Website,
         sport: Sport,
         country: Country,
@@ -26,13 +25,10 @@ class Odds extends Mongo {
     };
 
     static async create() {
-        const obj = new Odds();
-        await obj.initialize();
-        this.instance = obj;
-        return obj;
+        await Odds.initialize();
     }
  
-    async saveEvent(eventObject, sportId) { 
+    static async saveEvent(eventObject, sportId) { 
         let countryId = await this.saveDocument(
             { 
                 name: eventObject.competition.country,
@@ -89,13 +85,13 @@ class Odds extends Mongo {
         )
     }
 
-    async findFutureEvents() {
+    static async findFutureEvents() {
         let currentDate = new Date()
         let query = { date: { $gt: currentDate }}
         return await this.getModelByName('event').find(query)
     }
 
-    async findFutureEventsByWebsite(websiteId) {
+    static async findFutureEventsByWebsite(websiteId) {
         let currentDate = new Date()
         let query = { 
             date: { $gt: currentDate },
@@ -106,12 +102,12 @@ class Odds extends Mongo {
         .limit(200)
     }
 
-    async getMarketsBySportId(sportId) {
+    static async getMarketsBySportId(sportId) {
         let query = { sport: sportId }
         return await Market.find(query)
     }
 
-    async saveOdd(oddObject) {
+    static async saveOdd(oddObject) {
         await this.saveDocument(
             {
                 market: oddObject.market,
