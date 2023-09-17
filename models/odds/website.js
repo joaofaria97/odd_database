@@ -35,4 +35,4 @@ const WebsiteSchema = new Schema({
     sitemapUrl: String
 })
 
-module.exports = mongoose.model('Website', WebsiteSchema);
+module.exports = WebsiteSchema;

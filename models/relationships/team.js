@@ -8,4 +8,4 @@ const TeamSchema = new Schema({
     }],
 });
 
-module.exports = mongoose.model('Team', TeamSchema);
+module.exports = TeamSchema;

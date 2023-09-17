@@ -35,11 +35,13 @@ const MarketSchema = new Schema({
                 }
             ]
         }
-    ]
+    ],
+    default: Boolean
 })
 
 MarketSchema.methods.getMarket = function() {
     return this.market
 }
 
-module.exports = mongoose.model('Market', MarketSchema);
+
+module.exports = MarketSchema;

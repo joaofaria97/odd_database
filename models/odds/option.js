@@ -5,4 +5,5 @@ const OptionSchema = new Schema({
     name: String,
 })
 
-module.exports = mongoose.model('Option', OptionSchema);
+module.exports = OptionSchema;
+
