@@ -17,9 +17,7 @@ class Relationships extends Mongo {
     };
 
     static async create() {
-        const obj = new Relationships();
-        await obj.initialize()
-        return obj;
+        await Relationships.initialize()
     }
 }
 

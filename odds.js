@@ -10,6 +10,8 @@ const Market = require('./schemas/odds/market.js');
 const Odd = require('./schemas/odds/odd.js');
 const Option = require('./schemas/odds/option.js')
 
+// const Event = require('./utils/event.js');
+
 class Odds extends Mongo {
     static databaseName = 'odds'
     static schemaMap = {
@@ -125,153 +127,197 @@ class Odds extends Mongo {
         return await Market.find(query)
     }
 
-    static async getHomeEvents () {
-        let defaultMarket = await this.getModelByName('market').findOne ({ default: true })
-        let pipeline =[
-            // {
-            //   '$match': {
-            //     'date': {
-            //       '$gt': new Date()
-            //     }
-            //   }
-            // }, 
-            {
-              '$lookup': {
-                'from': 'odds', 
-                'localField': '_id', 
-                'foreignField': 'event', 
-                'pipeline': [
-                  {
-                    '$match': {
-                      'market': defaultMarket._id
-                    }
-                  }, {
-                    '$group': {
-                      '_id': {
-                        'event': '$event', 
-                        'market': '$market'
-                      }, 
-                      'options': {
-                        '$push': {
-                          'option': '$option', 
-                          'oddValues': '$oddValues', 
-                          'website': '$website'
-                        }
+    static async getHomeEvents() {
+        let marketId = (await this.getModelByName('market').findOne({ default: true }))._id
+        let pipeline = [
+          // {
+          //   '$match': {
+          //     'date': {
+          //       '$gt': new Date()
+          //     }
+          //   }
+          // }, 
+          {
+            '$lookup': {
+              'from': 'odds', 
+              'localField': '_id', 
+              'foreignField': 'event', 
+              'pipeline': [
+                {
+                  '$match': {
+                    'market': marketId
+                  }
+                }, {
+                  '$group': {
+                    '_id': {
+                      'event': '$event', 
+                      'market': '$market'
+                    }, 
+                    'options': {
+                      '$push': {
+                        '_id': '$option', 
+                        'odd': {
+                          '$last': '$oddValues'
+                        }, 
+                        'website': '$website'
                       }
                     }
                   }
-                ], 
-                'as': 'odds'
-              }
-            }, {
-              '$match': {
-                'odds': {
-                  '$exists': true, 
-                  '$ne': []
                 }
-              }
-            }, {
-              '$set': {
-                'odds': {
-                  '$first': '$odds'
-                }
-              }
-            }, {
-              '$lookup': {
-                'from': 'teams', 
-                'localField': 'home', 
-                'foreignField': '_id', 
-                'as': 'home'
-              }
-            }, {
-              '$lookup': {
-                'from': 'teams', 
-                'localField': 'away', 
-                'foreignField': '_id', 
-                'as': 'away'
-              }
-            }, {
-              '$lookup': {
-                'from': 'competitions', 
-                'localField': 'competition', 
-                'foreignField': '_id', 
-                'as': 'competition'
-              }
-            }, {
-              '$lookup': {
-                'from': 'websites', 
-                'localField': 'website', 
-                'foreignField': '_id', 
-                'as': 'website'
-              }
-            }, {
-              '$project': {
-                'home.name': 1, 
-                'home._id': 1, 
-                'away.name': 1, 
-                'away._id': 1, 
-                'competition.name': 1, 
-                'competition._id': 1, 
-                'competition.country': 1, 
-                'country.name': 1, 
-                'country._id': 1, 
-                'website.name': 1, 
-                'website._id': 1, 
-                'date': 1, 
-                'url': 1, 
-                'odds': 1
-              }
-            }, {
-              '$project': {
-                'home': {
-                  '$first': '$home'
-                }, 
-                'away': {
-                  '$first': '$away'
-                }, 
-                'competition': {
-                  '$first': '$competition'
-                }, 
-                'country': {
-                  '$first': '$competition.country'
-                }, 
-                'date': 1, 
-                'url': 1, 
-                'website': {
-                  '$first': '$website'
-                }, 
-                'odds': 1
-              }
-            }, {
-              '$lookup': {
-                'from': 'countries', 
-                'localField': 'country', 
-                'foreignField': '_id', 
-                'as': 'country'
-              }
-            }, {
-              '$project': {
-                'home': 1, 
-                'away': 1, 
-                'competition': 1, 
-                'country': {
-                  '$first': '$country'
-                }, 
-                'date': 1, 
-                'url': 1, 
-                'website': 1, 
-                'odds': 1
-              }
-            }, {
-              '$project': {
-                'country.website': 0, 
-                'competition.country': 0
+              ], 
+              'as': 'market'
+            }
+          }, {
+            '$match': {
+              'market': {
+                '$exists': true, 
+                '$ne': []
               }
             }
-          ]
+          }, {
+            '$set': {
+              'market._id': {
+                '$first': '$market._id.market'
+              }
+            }
+          }, {
+            '$lookup': {
+              'from': 'teams', 
+              'localField': 'home', 
+              'foreignField': '_id', 
+              'as': 'home'
+            }
+          }, {
+            '$lookup': {
+              'from': 'teams', 
+              'localField': 'away', 
+              'foreignField': '_id', 
+              'as': 'away'
+            }
+          }, {
+            '$lookup': {
+              'from': 'competitions', 
+              'localField': 'competition', 
+              'foreignField': '_id', 
+              'as': 'competition'
+            }
+          }, {
+            '$lookup': {
+              'from': 'websites', 
+              'localField': 'website', 
+              'foreignField': '_id', 
+              'as': 'website'
+            }
+          },{
+            '$lookup': {
+              'from': 'sports', 
+              'localField': 'sport', 
+              'foreignField': '_id', 
+              'as': 'sport'
+            }
+          }, {
+            '$project': {
+              'home.name': 1, 
+              'home._id': 1, 
+              'away.name': 1, 
+              'away._id': 1, 
+              'competition.name': 1, 
+              'competition._id': 1, 
+              'competition.country': 1, 
+              'country.name': 1, 
+              'country._id': 1, 
+              'website.name': 1, 
+              'website._id': 1, 
+              'website.namingPriority': 1,
+              'sport': 1, 
+              'date': 1, 
+              'url': 1, 
+              'market': 1
+            }
+          }, {
+            '$project': {
+              'home': {
+                '$first': '$home'
+              }, 
+              'away': {
+                '$first': '$away'
+              }, 
+              'competition': {
+                '$first': '$competition'
+              }, 
+              'country': {
+                '$first': '$competition.country'
+              }, 
+              'date': 1, 
+              'url': 1, 
+              'website': {
+                '$first': '$website'
+              },
+              'sport': {
+                '$first': '$sport'
+              }, 
+              'market': {
+                '$first': '$market'
+              }
+            }
+          }, {
+            '$lookup': {
+              'from': 'countries', 
+              'localField': 'country', 
+              'foreignField': '_id', 
+              'as': 'country'
+            }
+          }, {
+            '$project': {
+              'home': 1, 
+              'away': 1, 
+              'competition': 1, 
+              'country': {
+                '$first': '$country'
+              }, 
+              'date': 1, 
+              'url': 1, 
+              'website': 1, 
+              'market': 1,
+              'sport': 1
+            }
+          }, {
+            '$project': {
+              'country.website': 0, 
+              'competition.country': 0
+            }
+          }, {
+            '$set': {
+              '_id': {
+                'relationshipId': null, 
+                '_id': '$_id'
+              }, 
+              'home._id': {
+                'relationshipId': null, 
+                '_id': '$home._id'
+              }, 
+              'away._id': {
+                'relationshipId': null, 
+                '_id': '$away._id'
+              }, 
+              'competition._id': {
+                'relationshipId': null, 
+                '_id': '$competition._id'
+              }, 
+              'country._id': {
+                'relationshipId': null, 
+                '_id': '$country._id'
+              }, 
+              'market.options.website': {
+                '_id': '$website._id', 
+                'name': '$website.name'
+              }
+            }
+          }
+        ]
     
         let events = await Odds.getModelByName('event').aggregate(pipeline)
-        console.log(events)
+        return events
     }
     
 
