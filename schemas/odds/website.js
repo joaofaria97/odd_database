@@ -32,7 +32,8 @@ const WebsiteSchema = new Schema({
             pathName: String,
         },
     ],
-    sitemapUrl: String
+    sitemapUrl: String,
+    namingPriority: Number
 })
 
 module.exports = WebsiteSchema;

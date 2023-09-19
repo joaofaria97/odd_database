@@ -8,4 +8,5 @@ const CountrySchema = new Schema({
     }],
 });
 
-module.exports = CountrySchema
+module.exports = CountrySchema;
+

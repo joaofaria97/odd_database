@@ -10,3 +10,4 @@ const CountrySchema = new Schema({
 });
 
 module.exports = CountrySchema;
+

@@ -8,4 +8,4 @@ const CompetitionSchema = new Schema({
     }],
 });
 
-module.exports = CompetitionSchema
+module.exports = CompetitionSchema;
