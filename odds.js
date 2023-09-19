@@ -320,6 +320,67 @@ class Odds extends Mongo {
         return events
     }
     
+    static async getTopCompetitions() {
+      let pipeline = [
+        // {
+        //   '$match': {
+        //     'date': {
+        //       '$gt': new Date()
+        //     }
+        //   }
+        // },
+        {
+          '$group': {
+            '_id': '$competition', 
+            'totalEvents': {
+              '$sum': 1
+            }
+          }
+        }, {
+          '$sort': {
+            'totalEvents': -1
+          }
+        }, {
+          '$limit': 5
+        }, {
+          '$lookup': {
+            'from': 'competitions', 
+            'localField': '_id', 
+            'foreignField': '_id', 
+            'as': 'competition'
+          }
+        }, {
+          '$unwind': {
+            'path': '$competition'
+          }
+        }, {
+          '$lookup': {
+            'from': 'countries', 
+            'localField': 'competition.country', 
+            'foreignField': '_id', 
+            'as': 'country'
+          }
+        }, {
+          '$unwind': {
+            'path': '$country'
+          }
+        }, {
+          '$lookup': {
+            'from': 'sports', 
+            'localField': 'competition.sport', 
+            'foreignField': '_id', 
+            'as': 'sport'
+          }
+        }, {
+          '$unwind': {
+            'path': '$sport'
+          }
+        }
+      ]
+
+      let topCompetitions = await this.getModelByName('event').aggregate(pipeline)
+      return topCompetitions
+    }
 
     
 }
