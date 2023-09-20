@@ -136,7 +136,12 @@ class Odds extends Mongo {
           //       '$gt': new Date()
           //     }
           //   }
-          // }, 
+          // },
+          {
+            '$sort': {
+                'date': 1
+            }
+          }, 
           {
             '$lookup': {
               'from': 'odds', 
@@ -175,6 +180,8 @@ class Odds extends Mongo {
               }
             }
           }, {
+            '$limit': 10
+          },{
             '$set': {
               'market._id': {
                 '$first': '$market._id.market'
