@@ -48,7 +48,7 @@ class Mongo {
   static async clearDB() {
     try {
       for (let [key, value] of Object.entries(this.modelMap)) {
-        await this.clearCollection(key.toLowerCase())
+        if (this.isClearable(key)) await this.clearCollection(key.toLowerCase())
       }
       logger.info(`Deleted all documents from ${this.databaseName} database`);
     } catch (error) {

@@ -28,9 +28,10 @@ const EventSchema = new Schema({
 })
 
 const MergeSchema = new Schema({   
-    _id: Date,
-    eventsByWebsite: [[ EventSchema ]],
-    numWebsites: Number
+    events: [[ EventSchema ]],
+    similarity: Number,
+    checked: Boolean,
+    merge: Boolean
 });
 
 module.exports = MergeSchema;

@@ -29,7 +29,7 @@ const EventSchema = new Schema(
             ref: 'Sport'
         },
         
-        entryDate: Date,
+        // entryDate: Date,
 
         website: {
             type: Schema.Types.ObjectId,
