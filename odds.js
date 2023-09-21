@@ -29,6 +29,10 @@ class Odds extends Mongo {
     static async create() {
         await Odds.initialize();
     }
+
+    static isClearable(key) {
+      return ['country', 'competition', 'team','event','odd'].includes(key)
+    }
  
     static async saveEvent(eventObject, sportId) { 
         let countryId = await this.saveDocument(
@@ -77,11 +81,11 @@ class Odds extends Mongo {
                 away: awayId,
                 competition: competitionId,
                 sport: sportId,
-                entryDate: new Date()
             },
             {
                 date: eventObject.date,
                 url: eventObject.url,
+                // entryDate: new Date()
             },
             'event'
         )
