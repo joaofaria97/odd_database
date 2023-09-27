@@ -2,10 +2,9 @@ const mongoose = require('mongoose');
 const logger = require('../logger/index.js');
 
 class Mongo {
-
   static async connectToMongoDB(databaseName) {
     try {
-      let uri = `${process.env.DB_URI}/${databaseName}`
+      let uri = `${process.env.DB_URI}`
 
       let conn = await mongoose.createConnection(uri, {
         useNewUrlParser: true,
@@ -19,7 +18,6 @@ class Mongo {
       logger.error(`Error connecting to ${databaseName} ${process.env.NODE_ENV} database\n`, error);
     }
   }
-
 
   static async initialize() {
     let conn = await this.connectToMongoDB(this.databaseName)
