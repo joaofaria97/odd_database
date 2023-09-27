@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const Odds = require('./odds.js')
 const Relationships = require('./relationships.js')
 const natural = require('natural')
@@ -149,7 +151,7 @@ class Util {
                         bestMatch.merge = false
                         await Relationships.saveDocument(bestMatch, {}, 'merge')
                     } else {
-                        await Relationships.mergeRelationships(bestMatch.events.map(event => event._id))
+                        await this.mergeRelationships(bestMatch.events.map(event => event._id))
                     }
                   }
                 }
@@ -169,6 +171,35 @@ class Util {
 
     static calcSimilarity(str1, str2) {
         return 1 - natural.LevenshteinDistance(str1, str2) / Math.max(str1.length, str2.length)
+    }
+
+    static async mergeRelationships(eventIdArray) {
+        let eventDocArray = (await Promise.all(
+            eventIdArray.map(async(_id) => {
+            _id = new mongoose.Types.ObjectId(_id)
+            return await Odds.getModelByName('event').find(_id).populate('competition', '_id country')
+            })
+        )).flat()
+    
+        // country
+        let countryArray = eventDocArray.map(doc => doc.competition.country)
+        await Relationships.mergeCountries(countryArray)
+        
+        // competition
+        let competitionArray = eventDocArray.map(doc => doc.competition._id)
+        await Relationships.mergeCompetitions(competitionArray)
+        
+        // home
+        let homeTeamArray = eventDocArray.map(doc => doc.home)
+        await Relationships.mergeTeams(homeTeamArray)
+        
+        // away
+        let awayTeamArray = eventDocArray.map(doc => doc.away)
+        await Relationships.mergeTeams(awayTeamArray)
+        
+        // event
+        await Relationships.mergeEvents(eventIdArray)
+    
     }
 }
 
