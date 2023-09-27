@@ -8,7 +8,11 @@ const Competition = require('./schemas/odds/competition.js');
 const Event = require('./schemas/odds/event.js');
 const Market = require('./schemas/odds/market.js');
 const Odd = require('./schemas/odds/odd.js');
-const Option = require('./schemas/odds/option.js')
+const Option = require('./schemas/odds/option.js');
+const Relationships = require('./relationships.js');
+
+const util = require('util')
+
 
 // const Event = require('./utils/event.js');
 
@@ -127,7 +131,8 @@ class Odds extends Mongo {
         return await Market.find(query)
     }
 
-    static async getHomeEvents() {
+    static async getHomeEvents(competition) {
+        
         let marketId = (await this.getModelByName('market').findOne({ default: true }))._id
         let pipeline = [
           // {
@@ -179,9 +184,11 @@ class Odds extends Mongo {
                 '$ne': []
               }
             }
-          }, {
-            '$limit': 10
-          },{
+          },
+           {
+            '$limit': 20
+          },
+          {
             '$set': {
               'market._id': {
                 '$first': '$market._id.market'
@@ -323,6 +330,25 @@ class Odds extends Mongo {
           }
         ]
     
+        if (competition) {
+          let compRel = await Relationships.getModelByName('competition').findOne({ 'websites': competition })
+          
+          let competitions = compRel ? compRel.websites : [competition]
+
+          let compFilter =  {
+              '$match': {
+                'competition': {
+                  '$in': competitions
+                }
+              }
+            }
+
+          pipeline.splice(0, 0, compFilter)
+        }
+
+        // console.log(pipeline[0])
+        console.log(util.inspect(pipeline[0], false, null, true /* enable colors */))
+
         let events = await Odds.getModelByName('event').aggregate(pipeline)
         return events
     }
@@ -347,9 +373,11 @@ class Odds extends Mongo {
           '$sort': {
             'totalEvents': -1
           }
-        }, {
-          '$limit': 5
-        }, {
+        },
+        //  {
+        //   '$limit': 5
+        // },
+         {
           '$lookup': {
             'from': 'competitions', 
             'localField': '_id', 
