@@ -2,7 +2,6 @@ const mongoose = require('mongoose')
 const Mongo = require('./mongo.js');
 const Odds = require('./odds.js')
 
-const natural = require('natural')
 
 const Team = require('./schemas/relationships/team.js');
 const Country = require('./schemas/relationships/country.js');
