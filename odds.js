@@ -139,13 +139,13 @@ class Odds extends Mongo {
         
         let marketId = (await this.getModelByName('market').findOne({ default: true }))._id
         let pipeline = [
-          // {
-          //   '$match': {
-          //     'date': {
-          //       '$gt': new Date()
-          //     }
-          //   }
-          // },
+          {
+            '$match': {
+              'date': {
+                '$gt': new Date()
+              }
+            }
+          },
           {
             '$sort': {
                 'date': 1
@@ -359,13 +359,13 @@ class Odds extends Mongo {
     
     static async getTopCompetitions() {
       let pipeline = [
-        // {
-        //   '$match': {
-        //     'date': {
-        //       '$gt': new Date()
-        //     }
-        //   }
-        // },
+        {
+          '$match': {
+            'date': {
+              '$gt': new Date()
+            }
+          }
+        },
         {
           '$group': {
             '_id': '$competition', 
